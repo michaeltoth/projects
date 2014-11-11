@@ -1,4 +1,9 @@
-###Plotting the Yield Curve 
+##Plotting the Yield Curve 
+
+#####Introduction
+
+This R function allows you to plot the treasury curve historically for all dates since 1982.  Using the default graphical parameters will produce exactly the yieldOutput.gif file, but you can edit the graphical parameters to produce different styles of plot.
+
 
 #####Installation
 
