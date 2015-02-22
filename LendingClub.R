@@ -80,22 +80,21 @@ prop.test(c(dflt_m,dflt_o), c(count_m,count_o), alternative = "less")
 prop.test(c(dflt_o,dflt_r), c(count_o,count_r), alternative = "less")
 
 
-# Employment Length (combine factor levels for better comparison)
-levels(train$emp_length) <- c("None", "< 10 years", "< 10 years", "10+ years",
-                              rep("< 10 years", 8), "None")
-emp_length <- table(train$new_status, train$emp_length)
-prop_emp_length <- round(prop.table(emp_length, 2) * 100, 2)
+# Debt to Income Ratio (break into factors at 5% levels)
+train$new_dti <- cut(train$dti, breaks = c(0, 5, 10, 15, 20, 25, 30, 35))
+dti <- table(train$new_status, train$new_dti)
+prop_dti <- round(prop.table(dti, 2) * 100, 2)
 
 
-# Verified income status
-is_inc_v <- table(train$new_status, train$is_inc_v, exclude = "")
-prop_is_inc_v <- round(prop.table(is_inc_v, 2) * 100, 2)
+# Revolving Utilization (break into 0 - 20, then factors of 10, then 80+)
+train$new_revol_util <- cut(train$revol_util, breaks = c(0, 20, 30, 40, 50, 60, 70, 80, 141))
+revol_util <- table(train$new_status, train$new_revol_util)
+prop_revol_util <- round(prop.table(revol_util, 2) * 100, 2)
 
 
-# Delinquencies in the past 2 Years (combine factors levels for any > 3)
-levels(train$delinq_2yrs) <- c("0", "1", "2", rep("3+", 17))
-delinq_2yrs <- table(train$new_status, train$delinq_2yrs)
-prop_delinq_2yrs <- round(prop.table(delinq_2yrs, 2) * 100, 2)
+# Loan Purpose (exclude renewable energy because so few data points)
+purpose <- table(train$new_status,train$purpose, exclude = c("renewable_energy",""))
+prop_purpose <- round(prop.table(purpose, 2) * 100, 2)
 
 
 # Inquiries in the last 6 months (combine factor levels for any > 4)
@@ -104,11 +103,58 @@ inq_last_6mths <- table(train$new_status, train$inq_last_6mths)
 prop_inq_last_6mths <- round(prop.table(inq_last_6mths, 2) * 100, 2)
 
 
-# Months since last delinquency (break factor levels in increments of 10)
-train$mths_since_last_delinq <- cut(train$mths_since_last_delinq, 
-                                   breaks = c(0, 10, 20, 30, 40, 50, 60, 156))
-mths_since_last_delinq <- table(train$new_status, train$mths_since_last_delinq)
-prop_mths_since_last_delinq <- round(prop.table(mths_since_last_delinq, 2) * 100, 2)
+# Number of total accounts (combine factor levels into groups of 5, then 23+)
+levels(train$total_acc) <- c(rep("<= 7", 5), rep("8 - 12", 5), 
+                             rep("13 - 17", 5), rep("18 - 22", 5), 
+                             rep("23+", 68))
+total_acc <- table(train$new_status, train$total_acc)
+prop_total_acc <- round(prop.table(total_acc, 2) * 100, 2)
+
+
+# Annual Income (factor into quantiles of 20%)
+train$new_annual_inc <- cut(train$annual_inc,
+                            quantile(train$annual_inc, na.rm = TRUE,
+                                     probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)))
+annual_inc <- table(train$new_status, train$new_annual_inc)
+prop_annual_inc <- round(prop.table(annual_inc, 2) * 100, 2)
+
+
+# Loan Amount (break into < 15k, 15k - 30k, 30k - 35k)
+train$new_loan_amnt <- cut(train$loan_amnt,c(0, 15000, 30000, 35000))
+loan_amnt <- table(train$new_status, train$new_loan_amnt)
+prop_loan_amnt <- round(prop.table(loan_amnt, 2) * 100, 2)
+
+
+# Employment Length (combine factor levels for better comparison)
+levels(train$emp_length) <- c("None", "< 10 years", "< 10 years", "10+ years",
+                              rep("< 10 years", 8), "None")
+emp_length <- table(train$new_status, train$emp_length)
+prop_emp_length <- round(prop.table(emp_length, 2) * 100, 2)
+
+
+# Number of Public Records (break factor levels into 0, 1, 2+)
+levels(train$pub_rec) <- c("0", "1", rep("2+", 12))
+pub_rec <- table(train$new_status, train$pub_rec)
+prop_pub_rec <- round(prop.table(pub_rec, 2) * 100, 2)
+
+
+# Delinquencies in the past 2 Years (combine factors levels for any > 3)
+levels(train$delinq_2yrs) <- c("0", "1", "2", rep("3+", 17))
+delinq_2yrs <- table(train$new_status, train$delinq_2yrs)
+prop_delinq_2yrs <- round(prop.table(delinq_2yrs, 2) * 100, 2)
+
+
+# Number of Open Accounts (combine factor levels into groups of 5)
+levels(train$open_acc) <- c(rep("<= 5", 6), rep("6 - 10", 5), 
+                            rep("11 - 15", 5), rep("16+", 38))
+open_acc <- table(train$new_status, train$open_acc)
+prop_open_acc <- round(prop.table(open_acc, 2) * 100, 2)
+
+
+# Verified income status
+is_inc_v <- table(train$new_status, train$is_inc_v, exclude = "")
+prop_is_inc_v <- round(prop.table(is_inc_v, 2) * 100, 2)
+
 
 # Months Since Last Record (compare blank vs. non-blank)
 na_last_record <- sum(is.na(train$mths_since_last_record))
@@ -120,57 +166,13 @@ not_na_last_rec_pct_dflt <- not_na_last_rec_dflt / not_na_last_record
 na_last_rec_pct_dflt <- na_last_rec_dflt/na_last_record
 
 
-# Number of Open Accounts (combine factor levels into groups of 5)
-levels(train$open_acc) <- c(rep("<= 5", 6), rep("6 - 10", 5), 
-                                  rep("11 - 15", 5), rep("16+", 38))
-open_acc <- table(train$new_status, train$open_acc)
-prop_open_acc <- round(prop.table(open_acc, 2) * 100, 2)
-
-
-# Number of Public Revords (break factor levels into 0, 1, 2+)
-levels(train$pub_rec) <- c("0", "1", rep("2+", 12))
-pub_rec <- table(train$new_status, train$pub_rec)
-prop_pub_rec <- round(prop.table(pub_rec, 2) * 100, 2)
-
-
-# Number of total accounts (combine factor levels into groups of 5, then 23+)
-levels(train$total_acc) <- c(rep("<= 7", 5), rep("8 - 12", 5), 
-                            rep("13 - 17", 5), rep("18 - 22", 5), 
-                            rep("23+", 68))
-total_acc <- table(train$new_status, train$total_acc)
-prop_total_acc <- round(prop.table(total_acc, 2) * 100, 2)
+# Months since last delinquency (break factor levels in increments of 10)
+train$mths_since_last_delinq <- cut(train$mths_since_last_delinq, 
+                                   breaks = c(0, 10, 20, 30, 40, 50, 60, 156))
+mths_since_last_delinq <- table(train$new_status, train$mths_since_last_delinq)
+prop_mths_since_last_delinq <- round(prop.table(mths_since_last_delinq, 2) * 100, 2)
 
 
 # Collections last 12 months
 collections <- table(train$new_status, train$collections_12_mths_ex_med)
 prop_collections <- round(prop.table(collections, 2) * 100, 2)
-
-
-# Loan Purpose (exclude renewable energy because so few data points)
-purpose <- table(train$new_status,train$purpose, exclude = c("renewable_energy",""))
-prop_purpose <- prop.table(purpose, 2)
-
-
-# Loan Amount (break into < 15k, 15k - 30k, 30k - 35k)
-train$new_loan_amnt <- cut(train$loan_amnt,c(0, 15000, 30000, 35000))
-loan_amnt <- table(train$new_status, train$new_loan_amnt)
-prop_loan_amnt <- round(prop.table(loan_amnt, 2) * 100, 2)
-
-
-# Annual Income (factor into quantiles of 20%)
-train$new_annual_inc <- cut(train$annual_inc,
-                            quantile(train$annual_inc, na.rm = TRUE,
-                                     probs = c(0, 0.2, 0.4, 0.6, 0.8, 1)))
-annual_inc <- table(train$new_status, train$new_annual_inc)
-prop_annual_inc <- round(prop.table(annual_inc, 2) * 100, 2)
-
-# Debt to Income Ratio (break into factors at 5% levels)
-train$new_dti <- cut(train$dti, breaks = c(0, 5, 10, 15, 20, 25, 30, 35))
-dti <- table(train$new_status, train$new_dti)
-prop_dti <- round(prop.table(dti, 2) * 100, 2)
-
-
-# Revolving Utilization (break into 0 - 20, then factors of 10, then 80+)
-train$new_revol_util <- cut(train$revol_util, breaks = c(0, 20, 30, 40, 50, 60, 70, 80, 141))
-revol_util <- table(train$new_status, train$new_revol_util)
-prop_revol_util <- round(prop.table(revol_util, 2) * 100, 2)
