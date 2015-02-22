@@ -139,7 +139,7 @@ Employment length also might have a significant impact on default probability, a
 | Performing    | 87.83  | 89.16      | 90.51     |
 
 
-**Verified Income Status**
+**Verified Income Status**  
 Verified income shows something a bit unexpected.  
 
 |               | Not Verified | Source Verified | Verified |
@@ -229,15 +229,15 @@ Loan amount shows no large differences for values less than 15000. Loans from 15
 
 **Loan Purpose**  
 
-|               | Small Biz. | Other      | Moving     | Medical    | Wedding    | House      | Vacation   | Consolidation | Major Purch. | Home Imp.  | Car        | Credit Card |
-|---------------|------------|------------|------------|------------|------------|------------|------------|---------------|--------------|------------|------------|-------------|
-| NonPerforming | 0.21058394 | 0.14076906 | 0.13846154 | 0.13504611 | 0.12340105 | 0.12168344 | 0.11784141 | 0.10893968    | 0.09247606   | 0.08843537 | 0.08675565 | 0.08122769  |
-| Performing    | 0.78941606 | 0.85923094 | 0.86153846 | 0.86495389 | 0.87659895 | 0.87831656 | 0.88215859 | 0.89106032    | 0.90752394   | 0.91156463 | 0.91324435 | 0.91877231  |
+|               | Small Biz. | Other | Moving | Medical | Wedding | House | Vacation | Consolidation | Major Purch. | Home Imp. | Car   | Credit Card |
+|---------------|------------|-------|--------|---------|---------|-------|----------|---------------|--------------|-----------|-------|-------------|
+| NonPerforming | 21.06      | 14.08 | 13.85  | 13.50   | 12.34   | 12.17 | 11.78    | 10.89         | 9.25         | 8.84      | 8.68  | 8.12        |
+| Performing    | 78.94      | 85.92 | 86.15  | 86.50   | 87.66   | 87.83 | 88.22    | 89.11         | 90.75        | 91.16     | 91.32 | 91.88       |
 
 
 
 
-**Variables that were not significant:**  
+**Variables that were not significant:**
 - Months since last delinquency. Interestingly, I did not find any significant differences here.
 - Months since last major derog did not show a very significant impact on default rates
 - Collections previous 12 months has too few data points on which to really judge. A quick investigation of the available data shows no significant differences.
@@ -345,7 +345,7 @@ prop_collections <- round(prop.table(collections, 2) * 100, 2)
 
 # Loan Purpose (exclude renewable energy because so few data points)
 purpose <- table(train$new_status,train$purpose, exclude = c("renewable_energy",""))
-prop_purpose <- prop.table(purpose, 2)
+prop_purpose <- round(prop.table(purpose, 2) * 100, 2)
 
 
 # Loan Amount (break into < 15k, 15k - 30k, 30k - 35k)
