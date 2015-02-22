@@ -88,7 +88,8 @@ We see a similar pattern in the subgrades, although there is a bit of fluctuatio
 
 In general, it looks like the Lending Club grading system does a pretty great job of predicting probabilities of defaults, but let's check out some of the other available data to see what else we can find.
 
-**Home Ownership**  
+<br>
+####Home Ownership
 
 The first variable I want to look at is home ownership. I would expect those with mortgages to default less frequently than those who rent, both because there are credit requirements to get a mortgage and because those with mortgages will in aggregate tend to be in better financial health. Let's see whether this is actually the case.
 
@@ -132,7 +133,7 @@ The p-value of the first test was 6.377*10^-12 and the p-value for the second te
 For the remaining analysis, the code for analysis of each variable becomes somewhat repetitive, so I will present only the results.  If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the [complete code on Github](https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R).  
 
 
-**Employment Length**  
+####Employment Length
 Employment length also might have a significant impact on default probability, as I'd expect those who had been employed longer to be more stable, and thus less likely to default. Looking into the data, 3 key groups emerged: the unemployed, those employed less than 10 years, and those employed for 10+ years.  Aggregating and analyzing the differences:  
 
 |               | None   | < 10 years | 10+ years |
@@ -152,7 +153,7 @@ Verified income shows something a bit unexpected.
 
 
 <br>
-**Delinquencies in Past 2 Years**  
+####Delinquencies in Past 2 Years  
 I combined all numbers 3 or larger into a single bucket. Interestingly, those with a single delinquency seem to default less frequently than those with none. In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant increase in defaults.  
 
 |               | 0     | 1     | 2     | 3+    |
@@ -162,7 +163,7 @@ I combined all numbers 3 or larger into a single bucket. Interestingly, those wi
 
 
 <br>
-**Inquiries in Past 6 Months**  
+####Inquiries in Past 6 Months 
 Number of inquiries.  There's an increase in delinquincies as inquiries increases, until the 4+ bucket where we see a slight decrease. This may reflect that those with a very high number of inquiries are possibly more savvy borrowers.  
 
 |               | 0     | 1     | 2     | 3     | 4     |
@@ -172,7 +173,7 @@ Number of inquiries.  There's an increase in delinquincies as inquiries increase
 
 
 <br>
-**Open Accounts**  
+####Open Accounts
 Slight decrease in delinquencies as this grows, but not a very strong indicator:  
 
 |               | <= 5  | 6 - 10 | 11 - 15 | 16+   |
@@ -182,7 +183,7 @@ Slight decrease in delinquencies as this grows, but not a very strong indicator:
 
 
 <br>
-**Number of Public Records**  
+####Number of Public Records
 Default probability actually goes down as you move from 0 to 1 to 2, possibly indicating stricter lending standards from Lending Club on those borrowers with public records:  
 
 |               | 0     | 1     | 2+    |
@@ -192,7 +193,7 @@ Default probability actually goes down as you move from 0 to 1 to 2, possibly in
 
 
 <br>
-**Number of Total Accounts**  
+####Number of Total Accounts
 showed a significant decrease in delinquencies for numbers smaller than 20, but showed no real changes after that, so I focused in on the smaller ranges:  
 
 |               | <= 7  | 8 - 12 | 13 - 17 | 18 - 22 | 23+   |
@@ -202,7 +203,7 @@ showed a significant decrease in delinquencies for numbers smaller than 20, but 
 
 
 <br>
-**Debt to Income Ratio**  
+####Debt to Income Ratio
 Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defaults as DTI increases  
 
 |               | 0 - 5 | 5 - 10 | 10 - 15 | 15 - 20 | 20 - 25 | 25 - 30 | 30 - 35 |
@@ -212,7 +213,7 @@ Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defau
 
 
 <br>
-**Revolving Utilization Percent**  
+####Revolving Utilization Percent
 shows a stead increase in default rates  
 
 |               | 0 - 20 | 20 - 30 | 30 - 40 | 40 - 50 | 50 - 60 | 60 - 70 | 70 - 80 | 80+   |
@@ -222,7 +223,7 @@ shows a stead increase in default rates
 
 
 <br>
-**Annual Income**  
+####Annual Income
 Split into percentile buckets  
 
 |               | 0% - 20% | 20% - 40%     | 40% - 60%     | 60% - 80%     | 80% - 100% |
@@ -233,7 +234,7 @@ Split into percentile buckets
 
 
 <br>
-**Loan Amount**  
+####Loan Amount
 Loan amount shows no large differences for values less than 15000. Loans from 15000 to 30000 fare slightly worse, but loans in the 30000 - 35000 range (the Lending Club maximum) perform significantly worse:  
 
 |               | 0 - 15000 | 15000 - 30000 | 30000 - 35000 |
@@ -243,7 +244,7 @@ Loan amount shows no large differences for values less than 15000. Loans from 15
 
 
 <br>
-**Loan Purpose**  
+####Loan Purpose
 
 |               | Small Biz. | Other | Moving | Medical | Wedding | House | Vacation | Consolidation | Major Purch. | Home Imp. | Car   | Credit Card |
 |---------------|------------|-------|--------|---------|---------|-------|----------|---------------|--------------|-----------|-------|-------------|
@@ -253,7 +254,7 @@ Loan amount shows no large differences for values less than 15000. Loans from 15
 
 <br>
 <br>
-**Variables that were not significant:**
+####Variables that were not significant:
 - Months since last delinquency. Interestingly, I did not find any significant differences here.
 - Months since last major derog did not show a very significant impact on default rates
 - Collections previous 12 months has too few data points on which to really judge. A quick investigation of the available data shows no significant differences.
