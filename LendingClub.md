@@ -33,7 +33,9 @@ if (!exists("full_dataset")) {
 }
 ```
 
-Next, let's extract the fields we need and format the data. I eliminate any fields that would not have been known at the time of issuance, with the exception of the loan_status field, which we will ultimately try to predict. I also eliminate a few indicative data fields that are repetitive or too granular to be analyzed, and make some formatting changes to get the data ready for analysis. Finally, I reduce the various loan status measures (current, defaulted, delinquent, etc) to binary outcomes of "Performing" and "Nonperforming" to create a more straightforward classification problem for loan outcomes:  
+Next, let's extract the fields we need and format the data. I eliminate any fields that would not have been known at the time of issuance, with the exception of the loan_status field, which we will ultimately try to predict. I also eliminate a few indicative data fields that are repetitive or too granular to be analyzed, and make some formatting changes to get the data ready for analysis. 
+
+**EXPLAIN MORE FULLY**Finally, I reduce the various loan status measures (current, defaulted, delinquent, etc) to binary outcomes of "Performing" and "Nonperforming" to create a more straightforward classification problem for loan outcomes:  
 
 ```R
 # Select variables to keep
@@ -58,9 +60,13 @@ train$int_rate <- as.numeric(sub("%", "", train$int_rate))
 train$revol_util <- as.numeric(sub("%", "", train$revol_util))
 ```
 
-To start, let's examine some of the relationships between variables and default rates to see if we can determine what the major drivers of defaults will be, and whether we can identify any relationships.
+## Analyzing Predictive Power of Variables  
 
-First let's look at the proportions of performing and non-performing loans by Lending Club's provided grades:
+<br>
+#### Lending Club Grades and Subgrades  
+To start, let's examine some of the relationships between variables and default rates to see if we can determine what the major drivers of defaults will be, and whether we can identify any relationships.  
+
+First let's look at the proportions of performing and non-performing loans by Lending Club's provided grades:  
 
 ```R
 by_grade <- table(train$new_status, train$grade, exclude="")
@@ -129,12 +135,11 @@ prop.test(c(dflt_o,dflt_r), c(count_o,count_r), alternative = "less")
 The p-value of the first test was 6.377*10^-12 and the p-value for the second test was 3.787*10^-8, indicating that the differences in both of these proportions are very statistically significant. Although the differences in the default probabilities are only on the order of 1.5%, the number of data points is in the high tens of thousands, which contributes to the significance. Given this result, we can safely conclude that similar differences in default probabilities for other factors should also be significant, so long as a similar quantity of data points is available.
 
 
-## Predictive value of variables  
-For the remaining analysis, the code for analysis of each variable becomes somewhat repetitive, so I will present only the results.  If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the [complete code on Github](https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R).  
+Note: for the remaining analysis, the code for analysis of each variable becomes somewhat repetitive, so I will present only the results. If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the [complete code on Github](https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R).  
 
 <br>
 ####Debt to Income Ratio
-Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defaults as DTI increases  
+Debt to income ratio shows the ratio between the borrowers monthly debt payment and monthly income. This was a continuous variable, and I bucketed into 5% increments to better see the effect on loan performance. As we might expect, there is a steady increase in the percentage of non-performing loans as DTI increases, reflecting the constraints that increased debt put onto ability to repay:  
 
 |               | 0% - 5% | 5% - 10% | 10% - 15% | 15% - 20% | 20% - 25% | 25% - 30% | 30% - 35% |
 |---------------|---------|----------|-----------|-----------|-----------|-----------|-----------|
@@ -144,7 +149,7 @@ Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defau
 
 <br>
 ####Revolving Utilization Percent
-shows a stead increase in default rates  
+Revolving utilization percent is the portion of a borrower's revolving credit limit (i.e. credit card limit) that they actually are using at any given point. For example, if a borrower's total credit limit is $15,000 and their outstanding balance is $1,500 their utilization rate would be 10%. We can see below that the percentage of non-performing loans steadily increases with utilization rate. Borrowers with high utilization rates are more likely to have high fixed credit card payments which might affect their ability to repay their loans. Also, a high utilization rate often reflects a lack of other financing options, with borrowers turning to peer-to-peer lending as a last resort. This is in contrast to those borrowers with low utilization rates, who may be using peer-to-peer lending opportunistically to pursue lower interest payments.  
 
 |               | 0% - 20% | 20% - 30% | 30% - 40% | 40% - 50% | 50% - 60% | 60% - 70% | 70% - 80% | 80% +  |
 |---------------|----------|-----------|-----------|-----------|-----------|-----------|-----------|--------|
@@ -154,6 +159,7 @@ shows a stead increase in default rates
 
 <br>
 ####Loan Purpose
+Loan purpose refers to the borrower's stated reason for taking out the loan.  We see below that credit card and debt consolidation tend to have lower rates of nonperformance, along with home improvement, cars, and other major purchases. Luxury spending on vacations and weddings and unexpected medical and moving expenses show worse performance. Small business loans perform very poorly, perhaps reflecting the fact that those borrowers unable to get bank financing for their small business may have poor credit or business plans.  
 
 |               | Small Biz. | Other | Moving | Medical | Wedding | House | Vacation | Consolidation | Major Purch. | Home Imp. | Car   | Credit Card |
 |---------------|------------|-------|--------|---------|---------|-------|----------|---------------|--------------|-----------|-------|-------------|
@@ -162,10 +168,10 @@ shows a stead increase in default rates
 
 
 <br>
-####Inquiries in Past 6 Months 
-Number of inquiries.  There's an increase in delinquincies as inquiries increases, until the 4+ bucket where we see a slight decrease. This may reflect that those with a very high number of inquiries are possibly more savvy borrowers.  
+####Inquiries in the Past 6 Months 
+Number of inquiries refers to the number of times a borrower's credit report is accessed by financial institutions, which generally happens when the borrower is seeking a loan or credit line. More inquiries leads to higher rates of nonperformance, perhaps indicating that borrower desperation to access credit might highlight poor financial health.  Interesting is that we see an increase in loan performance in the 4+ bucket, perhaps reflecting financially savvy borrowers.  
 
-|               | 0     | 1     | 2     | 3     | 4     |
+|               | 0     | 1     | 2     | 3     | 4+    |
 |---------------|-------|-------|-------|-------|-------|
 | NonPerforming | 8.77  | 11.05 | 13.08 | 15.13 | 14.13 |
 | Performing    | 91.23 | 88.95 | 86.92 | 84.87 | 85.87 |
@@ -173,7 +179,7 @@ Number of inquiries.  There's an increase in delinquincies as inquiries increase
 
 <br>
 ####Number of Total Accounts
-showed a significant decrease in delinquencies for numbers smaller than 20, but showed no real changes after that, so I focused in on the smaller ranges:  
+A larger number of total accounts indicates a longer credit history and a high level of trust between the borrower and financial institutions, both of which point to financial health and lower rates of default.  We see sharp increases in the rates of performing loans as the number of accounts increases from 7 to around 20, but diminishing effects after that.  
 
 |               | <= 7  | 8 - 12 | 13 - 17 | 18 - 22 | 23+   |
 |---------------|-------|--------|---------|---------|-------|
@@ -183,7 +189,7 @@ showed a significant decrease in delinquencies for numbers smaller than 20, but 
 
 <br>
 ####Annual Income
-Split into percentile buckets  
+As we might expect, the higher a borrower's annual income the more likely they are to be able to repay their loans.  Below I've broken the data into quintiles, and we can see that those in the top 20% of annual incomes ($95000 +) are approximately 6% more likely to be performing borrowers than those in the bottom 20% (less than $42000).  
 
 |               | 0% - 20%  | 20% - 40%       | 40% - 60%       | 60% - 80%       | 80% - 100%  |
 |---------------|-----------|-----------------|-----------------|-----------------|-------------|
@@ -194,7 +200,7 @@ Split into percentile buckets
 
 <br>
 ####Loan Amount
-Loan amount shows no large differences for values less than 15000. Loans from 15000 to 30000 fare slightly worse, but loans in the 30000 - 35000 range (the Lending Club maximum) perform significantly worse:  
+As the amount borrowed increases, we see increasing rates of nonperforming loans. The differences between the first two buckets are only around 1% (and the intra-bucket differences are very small), but we see a market decrease in loan quality in the $30,000 - $35,000 bucket (Lending Club maximum loan is $35,000).    
 
 |               | $0 - $15000 | $15000 - $30000 | $30000 - $35000 |
 |---------------|-------------|-----------------|-----------------|
@@ -204,7 +210,7 @@ Loan amount shows no large differences for values less than 15000. Loans from 15
 
 <br>
 ####Employment Length
-Employment length also might have a significant impact on default probability, as I'd expect those who had been employed longer to be more stable, and thus less likely to default. Looking into the data, 3 key groups emerged: the unemployed, those employed less than 10 years, and those employed for 10+ years.  Aggregating and analyzing the differences:  
+We'd expect those who have been employed longer to be more stable, and thus less likely to default. Looking into the data, 3 key groups emerged: the unemployed, those employed less than 10 years, and those employed for 10+ years:
 
 |               | None   | < 10 years | 10+ years |
 |---------------|--------|------------|-----------|
@@ -213,18 +219,8 @@ Employment length also might have a significant impact on default probability, a
 
 
 <br>
-####Number of Public Records
-Default probability actually goes down as you move from 0 to 1 to 2, possibly indicating stricter lending standards from Lending Club on those borrowers with public records:  
-
-|               | 0     | 1     | 2+    |
-|---------------|-------|-------|-------|
-| NonPerforming | 10.61 | 9.00  | 8.72  |
-| Performing    | 89.39 | 91.00 | 91.28 |
-
-
-<br>
-####Delinquencies in Past 2 Years  
-I combined all numbers 3 or larger into a single bucket. Interestingly, those with a single delinquency seem to default less frequently than those with none. In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant increase in defaults.  
+####Delinquencies in the Past 2 Years  
+The number of delinquencies in the past 2 years shows the number of times a borrower has been behind on payments. I combined all values 3 or larger into a single bucket for analysis, as this was a right-tailed distribution. Interestingly, those with a single delinquency seem to perform more often than those with none. In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant increase in nonperformance.  
 
 |               | 0     | 1     | 2     | 3+    |
 |---------------|-------|-------|-------|-------|
@@ -234,7 +230,7 @@ I combined all numbers 3 or larger into a single bucket. Interestingly, those wi
 
 <br>
 ####Number of Open Accounts
-Slight decrease in delinquencies as this grows, but not a very strong indicator:  
+Unlike the number of total accounts above, which we saw to be quite significant, the number of open accounts variable did not show particularly large differences between the buckets I defined below:  
 
 |               | <= 5  | 6 - 10 | 11 - 15 | 16+   |
 |---------------|-------|--------|---------|-------|
@@ -244,7 +240,7 @@ Slight decrease in delinquencies as this grows, but not a very strong indicator:
 
 <br>
 ####Verified Income Status
-Verified income shows something a bit unexpected.  
+There are three verified income statuses: not verified, source verified, and verified. Verified income means that Lending Club independently verified both the source and size of reported income, source verified means that they verified only the source, and not verified means there was no independent verification of the reported values. Interestingly, we see that as the standards of verification increase, the loan performance actually worsens. During the mortgage crisis, non-verified "no-doc" loans were among the worst performing, so the reversal here is interesting. This likely reflects the fact that Lending Club only verifies those borrowers who seem to be of worse credit quality, so there may be [confounding variables](http://en.wikipedia.org/wiki/Confounding) present here.  
 
 |               | Not Verified | Source Verified | Verified |
 |---------------|--------------|-----------------|----------|
@@ -253,11 +249,24 @@ Verified income shows something a bit unexpected.
 
 
 <br>
-####Variables that were not significant:
-- Months since last delinquency. Interestingly, I did not find any significant differences here.
-- Months since last major derog did not show a very significant impact on default rates
-- Collections previous 12 months has too few data points on which to really judge. A quick investigation of the available data shows no significant differences.
+####Number of Public Records
+Public records generally refer to bankruptcies. Interesting, performance actually increases as you move from 0 to 1 to 2, possibly indicating stricter lending standards from Lending Club on those borrowers with public records:  
 
+|               | 0     | 1     | 2+    |
+|---------------|-------|-------|-------|
+| NonPerforming | 10.61 | 9.00  | 8.72  |
+| Performing    | 89.39 | 91.00 | 91.28 |
+
+<br>
+####Variables that were not significant:
+- Months since last delinquency
+- Months since last major derogatory note
+- Collections previous 12 months (too few data points on which to make any conclusions or form predictions)
+
+## Summary
+- Lending club grade and subgrade variables provide the most predictive power for determining expected loan performance.
+- A large number of the other variables also provide strong indications of expected performance.  Among the most telling are debt-to-income ratio, credit utilization rate, home ownership status, loan purpose, annual income, inquiries in the past 6 months, and number of total accounts.
+- Two of the variables, verified income status and months since last record, show results opposite from what we would expect.
 
 
 ## Appendix
@@ -343,12 +352,6 @@ emp_length <- table(train$new_status, train$emp_length)
 prop_emp_length <- round(prop.table(emp_length, 2) * 100, 2)
 
 
-# Number of Public Records (break factor levels into 0, 1, 2+)
-levels(train$pub_rec) <- c("0", "1", rep("2+", 12))
-pub_rec <- table(train$new_status, train$pub_rec)
-prop_pub_rec <- round(prop.table(pub_rec, 2) * 100, 2)
-
-
 # Delinquencies in the past 2 Years (combine factors levels for any > 3)
 levels(train$delinq_2yrs) <- c("0", "1", "2", rep("3+", 17))
 delinq_2yrs <- table(train$new_status, train$delinq_2yrs)
@@ -365,6 +368,12 @@ prop_open_acc <- round(prop.table(open_acc, 2) * 100, 2)
 # Verified income status
 is_inc_v <- table(train$new_status, train$is_inc_v, exclude = "")
 prop_is_inc_v <- round(prop.table(is_inc_v, 2) * 100, 2)
+
+
+# Number of Public Records (break factor levels into 0, 1, 2+)
+levels(train$pub_rec) <- c("0", "1", rep("2+", 12))
+pub_rec <- table(train$new_status, train$pub_rec)
+prop_pub_rec <- round(prop.table(pub_rec, 2) * 100, 2)
 
 
 # Months Since Last Record (compare blank vs. non-blank)
