@@ -1,14 +1,14 @@
 Title: Projecting Default Rates of Lending Club Notes  
-Date: 2015-02-21 14:28  
+Date: 2015-02-22 14:28  
 Authors: Michael Toth  
-Modified: 2014-11-12 20:01  
+Modified: 2015-02-22 20:01  
 Category: R  
 Tags: R, Projects  
 Slug: LendingClub  
 author_gplusid: 103836786232018210272  
-Summary: BlahBlahBlah.  
+Summary: This post briefly discusses the background of peer-to-peer lending before diving into some exploratory data analysis on the Lending Club data set. This will be the first in a series of posts designed to create a predictive model to determine the probability of default in for peer-to-peer loans.
 
-For those unfamiliar, Lending Club is the world's largest peer-to-peer lending company, offering a platform for borrowers and lenders to work directly with one another, eliminating the need for a financial intermediary like a bank. Removing the middle-man generally allows both borrowers and lenders to receive better interest rates than they otherwise would, which makes peer-to-peer lending an attractive proposition. This post will be the first in a series of posts analyzing the probability of default and expected return of Lending Club notes. *Before investing, it is always important to fully understand the risks, and this post does not constitute investment advice in either Lending Club or in Lending Club notes.*  
+For those unfamiliar, Lending Club is the world's largest peer-to-peer lending company, offering a platform for borrowers and lenders to work directly with one another, eliminating the need for a financial intermediary like a bank. Removing the middle-man generally allows both borrowers and lenders to receive better interest rates than they otherwise would, which makes peer-to-peer lending an attractive proposition. This post will be the first in a series of posts analyzing the probability of default and expected return of Lending Club notes. In this first post, I'll cover some of the background on Lending Club, talk about getting and cleaning the loan data, and perform some exploratory analysis on the available variables and outcomes. In subsequent posts, I'll work on developing a predictive model for determining the probability of default for a given loan. *Before investing, it is always important to fully understand the risks, and this post does not constitute investment advice in either Lending Club or in Lending Club notes.*  
 
 ## Background and Gathering Data
 
