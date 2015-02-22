@@ -12,9 +12,7 @@ For those unfamiliar, Lending Club is the world's largest peer-to-peer lending c
 
 ## Background and Gathering Data
 
-All types of borrowers are using peer-to-peer lending for a variety of purposes. Lending Club has an algorithm to determine the risk for any given borrower, and they set the interest rates according to the supposed risk. Some percentage of borrowers will default on their loans, so it's important to understand whether the rate 
-
-Lending club makes all past borrower data freely available [on their website](https://www.lendingclub.com/info/download-data.action) for review, and this is the data that I will be referencing throughout this post.  
+Lending Club makes all past borrower data freely available [on their website](https://www.lendingclub.com/info/download-data.action) for review, and this is the data that I will be referencing throughout this post.  
 
 To download the 2012-2013 data from Lending Club:  
 
@@ -33,29 +31,45 @@ if (!exists("full_dataset")) {
 }
 ```
 
-Next, let's extract the fields we need and format the data. I eliminate any fields that would not have been known at the time of issuance, with the exception of the loan_status field, which we will ultimately try to predict. I also eliminate a few indicative data fields that are repetitive or too granular to be analyzed, and make some formatting changes to get the data ready for analysis. 
+For each loan in the file, Lending Club provides an indication of the current loan status. Because many of the loan statuses represent similar outcomes, I've mapped them from Lending Club's 7 down to only 2, simplifying the classification problem without much loss of information. The two outcomes "Performing" and "NonPerforming" seek to separate those loans likely to pay in full from those likely to default. Below I include a table summarizing the mappings:   
 
-**EXPLAIN MORE FULLY**Finally, I reduce the various loan status measures (current, defaulted, delinquent, etc) to binary outcomes of "Performing" and "Nonperforming" to create a more straightforward classification problem for loan outcomes:  
+| Status               | Mapping       | Description                                                              |
+|----------------------|---------------|--------------------------------------------------------------------------|
+| Fully Paid           | Performing    | Loan has been fully repaid                                               |
+| Current              | Performing    | Loan is up to date on all payments                                       |
+| In Grace Period      | NonPerforming | Loan is between 0 and 15 days past due                                   |
+| Late (16 - 30 days)  | NonPerforming | Loan is between 16 and 30 days past due                                  |
+| Late (31 - 120 days) | NonPerforming | Loan is between 31 and 120 days past due                                 |
+| Default              | NonPerforming | Loan is over 121 days past due                                           |
+| Charged Off          | NonPerforming | Loan for which there is no reasonable expectation of additional payments |
+
+
+Next, let's extract the fields we need and format the data. I eliminate any fields that would not have been known at the time of issuance. I also eliminate a few indicative data fields that are repetitive or too granular to be analyzed, and make some formatting changes to get the data ready for analysis. Finally, I map the loan statuses to the binary "Performing" and "NonPerforming" classifiers as discussed above.  
 
 ```R
-# Select variables to keep
+# Select variables to keep and subset the data
 variables <- c("id", "loan_amnt", "term", "int_rate", "installment", "grade", 
                "sub_grade", "emp_length", "home_ownership", "annual_inc", 
-               "is_inc_v", "loan_status", "desc", "purpose", 
-               "addr_state", "dti", "delinq_2yrs", "earliest_cr_line", 
-               "inq_last_6mths", "mths_since_last_delinq", 
-               "mths_since_last_record", "open_acc", "pub_rec", "revol_bal", 
-               "revol_util", "total_acc", "initial_list_status", 
-               "collections_12_mths_ex_med", "mths_since_last_major_derog")
-
-# Subset the data using only the selected variables
+               "is_inc_v", "loan_status", "purpose", "addr_state", "dti", 
+               "delinq_2yrs", "earliest_cr_line", "inq_last_6mths", 
+               "mths_since_last_delinq", "mths_since_last_record", "open_acc", 
+               "pub_rec", "revol_bal", "revol_util", "total_acc", 
+               "initial_list_status", "collections_12_mths_ex_med", 
+               "mths_since_last_major_derog")
 train <- full_dataset[variables]
 
 # Reduce loan status to binary "Performing" and "NonPerforming" Measures:
 train$new_status <- factor(ifelse(train$loan_status %in% c("Current", "Fully Paid"), 
                                   "Performing", "NonPerforming"))
 
-# Convert interest rate numbers to numeric
+# Convert a subset of the numeric variables to factors
+train$delinq_2yrs <- factor(train$delinq_2yrs)
+train$inq_last_6mths <- factor(train$inq_last_6mths)
+train$open_acc <- factor(train$open_acc)
+train$pub_rec <- factor(train$pub_rec)
+train$total_acc <- factor(train$total_acc)
+
+# Convert interest rate numbers to numeric (strip percent signs)
 train$int_rate <- as.numeric(sub("%", "", train$int_rate))
 train$revol_util <- as.numeric(sub("%", "", train$revol_util))
 ```
@@ -64,9 +78,9 @@ train$revol_util <- as.numeric(sub("%", "", train$revol_util))
 
 <br>
 #### Lending Club Grades and Subgrades  
-To start, let's examine some of the relationships between variables and default rates to see if we can determine what the major drivers of defaults will be, and whether we can identify any relationships.  
+All types of borrowers are using peer-to-peer lending for a variety of purposes. This raises the question of how to determine appropriate interest rates given the varying levels of risk across borrowers. Lending Club has developed an algorithm to a given borrower's level of risk, and they set the interest rates according to the risk level. Specifically, Lending Club maps borrowers to a series of grades [A-F] and subgrades [A-F][1-5] based on their risk profile.  Loans in each subgrade are then given appropriate interest rates, which change over time according to market conditions, but generally fall within a particular range for each subgrade. 
 
-First let's look at the proportions of performing and non-performing loans by Lending Club's provided grades:  
+Let's take a look at the proportions of performing and non-performing loans by Lending Club's provided grades:  
 
 ```R
 by_grade <- table(train$new_status, train$grade, exclude="")
@@ -86,18 +100,18 @@ We can see from the chart below that rates of default steadily increase as the l
 <img src="http://www.michaeltoth.net/img/by_grade.png", alt="Performance by Grade")>  
 <br> 
 
-We see a similar pattern in the subgrades, although there is a bit of fluctuation in the rates of default for the G1-G5 subgrades.  On further investigation, I found that there are only a few hundred data points for each of these subgrades, in contrast to thousands of data points for the A-F subgrades, and these differences are not enough to be significant.
+We see a similar pattern in the subgrades, although there is a bit of fluctuation in the rates of default for the G1-G5 subgrades.  On further investigation, I found that there are only a few hundred data points for each of these subgrades, in contrast to thousands of data points for the A-F subgrades, and these differences are not large enough to be significant.
 
 <br>
 <img src="http://www.michaeltoth.net/img/by_subgrade.png", alt="Performance by SubGrade")>  
 <br> 
 
-In general, it looks like the Lending Club grading system does a pretty great job of predicting probabilities of defaults, but let's check out some of the other available data to see what else we can find.
+In general, it looks like the Lending Club grading system does a pretty great job of predicting ultimate loan performance, but let's check out some of the other available data to see what else we can find.
 
 <br>
 ####Home Ownership
 
-The first variable I want to look at is home ownership. I would expect those with mortgages to default less frequently than those who rent, both because there are credit requirements to get a mortgage and because those with mortgages will in aggregate tend to be in better financial health. Let's see whether this is actually the case.
+The Lending Club data shows 3 main classifications for home ownership: mortgage (outstanding mortgage payment), own (home is owned outright), and rent. I would expect those with mortgages to default less frequently than those who rent, both because there are credit requirements to get a mortgage and because those with mortgages will in aggregate tend to be in better financial health. Let's see whether this is actually the case:  
 
 ```R
 ownership_status <- table(train$new_status,train$home_ownership,
@@ -111,7 +125,7 @@ prop_ownership <- round(prop.table(ownership_status, 2) * 100, 2)
 | NonPerforming | 9.01     | 10.71 | 12.25 |
 | Performing    | 90.99    | 89.29 | 87.75 |
 
-So those with mortgages default the least, followed by those who own their homes outright and finally those who rent.  The differences here are much smaller than when comparing different grades. Let's see whether these are significant:
+So those with mortgages default the least, followed by those who own their homes outright and finally those who rent.  The differences here are much smaller than when comparing different grades, but they are still notable. Let's see whether these are statistically significant:  
 
 
 ```R
@@ -132,10 +146,9 @@ prop.test(c(dflt_m,dflt_o), c(count_m,count_o), alternative = "less")
 prop.test(c(dflt_o,dflt_r), c(count_o,count_r), alternative = "less")
 ```
 
-The p-value of the first test was 6.377*10^-12 and the p-value for the second test was 3.787*10^-8, indicating that the differences in both of these proportions are very statistically significant. Although the differences in the default probabilities are only on the order of 1.5%, the number of data points is in the high tens of thousands, which contributes to the significance. Given this result, we can safely conclude that similar differences in default probabilities for other factors should also be significant, so long as a similar quantity of data points is available.
+The p-value of the first test was 6.377*10^-12 and the p-value for the second test was 3.787*10^-8, indicating that the differences in both of these proportions are very statistically significant. Although the differences in the default probabilities are somewhat small, on the order of 1.5%, the number of data points is in the high tens of thousands, which contributes to the significance. Given this result, we can safely conclude that similar differences in default probabilities for other factors should also be significant, so long as a similar quantity of data points is available.  
 
-
-Note: for the remaining analysis, the code for analysis of each variable becomes somewhat repetitive, so I will present only the results. If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the [complete code on Github](https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R).  
+**Note:** for the remaining analysis, the analysis code for each variable becomes a bit repetitive, so I will present only the results. If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the [complete code on Github](https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R).  
 
 <br>
 ####Debt to Income Ratio
@@ -266,7 +279,7 @@ Public records generally refer to bankruptcies. Interesting, performance actuall
 ## Summary
 - Lending club grade and subgrade variables provide the most predictive power for determining expected loan performance.
 - A large number of the other variables also provide strong indications of expected performance.  Among the most telling are debt-to-income ratio, credit utilization rate, home ownership status, loan purpose, annual income, inquiries in the past 6 months, and number of total accounts.
-- Two of the variables, verified income status and months since last record, show results opposite from what we would expect.
+- Verified income status, months since last record, and number of public records show results opposite from what we would expect. This is likely due to increased standards on borrowers with poorer credit history, so all else equal we see outperformance counter to expectations.  
 
 
 ## Appendix
