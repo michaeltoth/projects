@@ -123,15 +123,15 @@ prop.test(c(dflt_m,dflt_o), c(count_m,count_o), alternative = "less")
 prop.test(c(dflt_o,dflt_r), c(count_o,count_r), alternative = "less")
 ```
 
-The p-value of the first test was 6.377*10^-12 and the p-value for the second test was 3.787*10^-8, indicating that the differences in both of these proportions are very statistically significant.  Although the differences in the default probabilities are only on the order of 1.5%, the number of data points is in the high tens of thousands, which contributes to the significance.  Given this result, we can safely conclude that similar differences in default probabilities for other factors should also be significant, so long as a similar quantity of data points is available.
+The p-value of the first test was 6.377*10^-12 and the p-value for the second test was 3.787*10^-8, indicating that the differences in both of these proportions are very statistically significant. Although the differences in the default probabilities are only on the order of 1.5%, the number of data points is in the high tens of thousands, which contributes to the significance. Given this result, we can safely conclude that similar differences in default probabilities for other factors should also be significant, so long as a similar quantity of data points is available.
 
 
-### Predictive value of variables
+### Predictive value of variables  
 For the remaining analysis, the code for analysis of each variable becomes somewhat repetitive, so I will present only the results.  If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the complete code on my Github.
 
 
-**Employment Length**
-Employment length also might have a significant impact on default probability, as I'd expect those who had been employed longer to be more stable, and thus less likely to default.  Looking into the data, 3 key groups emerged: the unemployed, those employed less than 10 years, and those employed for 10+ years.  Aggregating and analyzing the differences:
+**Employment Length**  
+Employment length also might have a significant impact on default probability, as I'd expect those who had been employed longer to be more stable, and thus less likely to default. Looking into the data, 3 key groups emerged: the unemployed, those employed less than 10 years, and those employed for 10+ years.  Aggregating and analyzing the differences:  
 
 |               | None   | < 10 years | 10+ years |
 |---------------|--------|------------|-----------|
@@ -148,16 +148,16 @@ Verified income shows something a bit unexpected.
 | Performing    | 90.76        | 89.51           | 88.74    |
 
 
-**Delinquencies in Past 2 Years**
-I combined all numbers 3 or larger into a single bucket.  Interestingly, those with a single delinquency seem to default less frequently than those with none.  In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant increase in defaults.
+**Delinquencies in Past 2 Years**  
+I combined all numbers 3 or larger into a single bucket. Interestingly, those with a single delinquency seem to default less frequently than those with none. In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant increase in defaults.  
 
 |               | 0     | 1     | 2     | 3+    |
 |---------------|-------|-------|-------|-------|
 | NonPerforming | 10.45 | 10.22 | 10.74 | 11.78 |
 | Performing    | 89.55 | 89.78 | 89.26 | 88.22 |
 
-**Inquiries in Past 6 Months**
-Number of inquiries.  There's an increase in delinquincies as inquiries increases, until the 4+ bucket where we see a slight decrease.  This may reflect that those with a very high number of inquiries are possibly more savvy borrowers
+**Inquiries in Past 6 Months**  
+Number of inquiries.  There's an increase in delinquincies as inquiries increases, until the 4+ bucket where we see a slight decrease. This may reflect that those with a very high number of inquiries are possibly more savvy borrowers.  
 
 |               | 0     | 1     | 2     | 3     | 4     |
 |---------------|-------|-------|-------|-------|-------|
@@ -165,8 +165,8 @@ Number of inquiries.  There's an increase in delinquincies as inquiries increase
 | Performing    | 91.23 | 88.95 | 86.92 | 84.87 | 85.87 |
 
 
-**Open Accounts**
-Slight decrease in delinquencies as this grows, but not a very strong indicator:
+**Open Accounts**  
+Slight decrease in delinquencies as this grows, but not a very strong indicator:  
 
 |               | <= 5  | 6 - 10 | 11 - 15 | 16+   |
 |---------------|-------|--------|---------|-------|
@@ -174,16 +174,16 @@ Slight decrease in delinquencies as this grows, but not a very strong indicator:
 | Performing    | 89.17 | 89.63  | 89.51   | 89.60 |
 
 
-**Number of Public Records**
-Default probability actually goes down as you move from 0 to 1 to 2, possibly indicating stricter lending standards from Lending Club on those borrowers with public records:
+**Number of Public Records**  
+Default probability actually goes down as you move from 0 to 1 to 2, possibly indicating stricter lending standards from Lending Club on those borrowers with public records:  
 
 |               | 0     | 1     | 2+    |
 |---------------|-------|-------|-------|
 | NonPerforming | 10.61 | 9.00  | 8.72  |
 | Performing    | 89.39 | 91.00 | 91.28 |
 
-**Number of Total Accounts**
-showed a significant decrease in delinquencies for numbers smaller than 20, but showed no real changes after that, so I focused in on the smaller ranges:
+**Number of Total Accounts**  
+showed a significant decrease in delinquencies for numbers smaller than 20, but showed no real changes after that, so I focused in on the smaller ranges:  
 
 |               | <= 7  | 8 - 12 | 13 - 17 | 18 - 22 | 23+   |
 |---------------|-------|--------|---------|---------|-------|
@@ -191,8 +191,8 @@ showed a significant decrease in delinquencies for numbers smaller than 20, but 
 | Performing    | 86.94 | 88.37  | 88.85   | 89.35   | 90.05 |  
 
 
-**Debt to Income Ratio**
-Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defaults as DTI increases
+**Debt to Income Ratio**  
+Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defaults as DTI increases  
 
 |               | 0 - 5 | 5 - 10 | 10 - 15 | 15 - 20 | 20 - 25 | 25 - 30 | 30 - 35 |
 |---------------|-------|--------|---------|---------|---------|---------|---------|
@@ -200,8 +200,8 @@ Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defau
 | Performing    | 91.92 | 91.69  | 90.77   | 89.63   | 87.94   | 87.34   | 86.25   |
 
 
-**Revolving Utilization Percent**
-shows a stead increase in default rates
+**Revolving Utilization Percent**  
+shows a stead increase in default rates  
 
 |               | 0 - 20 | 20 - 30 | 30 - 40 | 40 - 50 | 50 - 60 | 60 - 70 | 70 - 80 | 80+   |
 |---------------|--------|---------|---------|---------|---------|---------|---------|-------|
@@ -209,26 +209,25 @@ shows a stead increase in default rates
 | Performing    | 92.68  | 91.73   | 91.07   | 90.72   | 90.32   | 89.06   | 88.43   | 87.09 |
 
 
-**Annual Income**
-Split into percentile buckets
+**Annual Income**  
+Split into percentile buckets  
 
 |               | 0% - 20% | 20% - 40%     | 40% - 60%     | 60% - 80%     | 80% - 100% |
 |---------------|----------|---------------|---------------|---------------|------------|
-|               | < 42000  | 42000 - 55000 | 55000 - 70000 | 70000 - 95000 | 95000 +    |
-|---------------|----------|---------------|---------------|---------------|------------|
+| Income Level  | < 42000  | 42000 - 55000 | 55000 - 70000 | 70000 - 95000 | 95000 +    |
 | NonPerforming | 13.37    | 11.57         | 10.57         | 8.99          | 7.51       |
 | Performing    | 86.63    | 88.43         | 89.43         | 91.01         | 92.49      |
 
 
-**Loan Amount**
-Loan amount shows no large differences for values less than 15000.  Loans from 15000 to 30000 fare slightly worse, but loans in the 30000 - 35000 range (the Lending Club maximum) perform significantly worse:
+**Loan Amount**  
+Loan amount shows no large differences for values less than 15000. Loans from 15000 to 30000 fare slightly worse, but loans in the 30000 - 35000 range (the Lending Club maximum) perform significantly worse:  
 
 |               | 0 - 15000 | 15000 - 30000 | 30000 - 35000 |
 |---------------|-----------|---------------|---------------|
 | NonPerforming | 11505     | 7065          | 1097          |
 | Performing    | 103524    | 57453         | 7478          |
 
-**Loan Purpose**
+**Loan Purpose**  
 
 |               | Small Biz. | Other      | Moving     | Medical    | Wedding    | House      | Vacation   | Consolidation | Major Purch. | Home Imp.  | Car        | Credit Card |
 |---------------|------------|------------|------------|------------|------------|------------|------------|---------------|--------------|------------|------------|-------------|
@@ -238,10 +237,10 @@ Loan amount shows no large differences for values less than 15000.  Loans from 1
 
 
 
-Variables that were not significant:
-- Months since last delinquency.  Interestingly, I did not find any significant differences here.
+**Variables that were not significant:**  
+- Months since last delinquency. Interestingly, I did not find any significant differences here.
 - Months since last major derog did not show a very significant impact on default rates
-- Collections previous 12 months has too few data points on which to really judge.  A quick investigation of the available data shows no significant differences.
+- Collections previous 12 months has too few data points on which to really judge. A quick investigation of the available data shows no significant differences.
 
 
 
@@ -249,7 +248,7 @@ Variables that were not significant:
 
 ### Appendix
 
-Below I've included the code used to generate the numbers in the tables above.  You can also find the complete code available on my Github
+Below I've included the code used to generate the numbers in the tables above. You can also find the complete code available on my Github
 
 ```R
 ### Explore the relationships between default rates and factor levels
