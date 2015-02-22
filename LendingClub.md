@@ -1,18 +1,18 @@
-Title: Projecting Default Rates of Lending Club Notes
-Date: 2015-02-21 14:28
-Authors: Michael Toth
-Modified: 2014-11-12 20:01
-Category: R
-Tags: R, Projects
-Slug: LendingClub
-author_gplusid: 103836786232018210272
-Summary: BlahBlahBlah.
+Title: Projecting Default Rates of Lending Club Notes  
+Date: 2015-02-21 14:28  
+Authors: Michael Toth  
+Modified: 2014-11-12 20:01  
+Category: R  
+Tags: R, Projects  
+Slug: LendingClub  
+author_gplusid: 103836786232018210272  
+Summary: BlahBlahBlah.  
 
-For those unfamiliar, Lending Club is the world's largest peer-to-peer lending company, offering a platform for borrowers and lenders to work directly with one another, eliminating the need for a financial intermediary like a bank. Eliminating the middle-man generally allows both borrowers and lenders to receive better interest rates than they otherwise would, which makes peer-to-peer lending an attractive proposition. This post will be written from the perspective of a Lending Club investor, analyzing the probability of default and expected return of Lending Club notes. *Before investing, it is always important to fully understand the risks, and this post does not constitute investment advice in either Lending Club or in Lending Club notes.*  
+For those unfamiliar, Lending Club is the world's largest peer-to-peer lending company, offering a platform for borrowers and lenders to work directly with one another, eliminating the need for a financial intermediary like a bank. Removing the middle-man generally allows both borrowers and lenders to receive better interest rates than they otherwise would, which makes peer-to-peer lending an attractive proposition. This post will be the first in a series of posts analyzing the probability of default and expected return of Lending Club notes. *Before investing, it is always important to fully understand the risks, and this post does not constitute investment advice in either Lending Club or in Lending Club notes.*  
 
-### Borrowers
+## Background and Gathering Data
 
-All types of borrowers are using peer-to-peer lending for all types of purposes. Lending Club has an algorithm to determine the risk for any given borrower, and they set the interest rates according to the supposed risk. Some percentage of borrowers will default on their loans, so it's important to understand whether the rate
+All types of borrowers are using peer-to-peer lending for a variety of purposes. Lending Club has an algorithm to determine the risk for any given borrower, and they set the interest rates according to the supposed risk. Some percentage of borrowers will default on their loans, so it's important to understand whether the rate 
 
 Lending club makes all past borrower data freely available [on their website](https://www.lendingclub.com/info/download-data.action) for review, and this is the data that I will be referencing throughout this post.  
 
@@ -88,6 +88,8 @@ We see a similar pattern in the subgrades, although there is a bit of fluctuatio
 
 In general, it looks like the Lending Club grading system does a pretty great job of predicting probabilities of defaults, but let's check out some of the other available data to see what else we can find.
 
+**Home Ownership**  
+
 The first variable I want to look at is home ownership. I would expect those with mortgages to default less frequently than those who rent, both because there are credit requirements to get a mortgage and because those with mortgages will in aggregate tend to be in better financial health. Let's see whether this is actually the case.
 
 ```R
@@ -127,7 +129,7 @@ The p-value of the first test was 6.377*10^-12 and the p-value for the second te
 
 
 ### Predictive value of variables  
-For the remaining analysis, the code for analysis of each variable becomes somewhat repetitive, so I will present only the results.  If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the complete code on my Github.
+For the remaining analysis, the code for analysis of each variable becomes somewhat repetitive, so I will present only the results.  If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the [complete code on Github](https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R).  
 
 
 **Employment Length**  
@@ -139,6 +141,7 @@ Employment length also might have a significant impact on default probability, a
 | Performing    | 87.83  | 89.16      | 90.51     |
 
 
+<br>
 **Verified Income Status**  
 Verified income shows something a bit unexpected.  
 
@@ -148,6 +151,7 @@ Verified income shows something a bit unexpected.
 | Performing    | 90.76        | 89.51           | 88.74    |
 
 
+<br>
 **Delinquencies in Past 2 Years**  
 I combined all numbers 3 or larger into a single bucket. Interestingly, those with a single delinquency seem to default less frequently than those with none. In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant increase in defaults.  
 
@@ -156,6 +160,8 @@ I combined all numbers 3 or larger into a single bucket. Interestingly, those wi
 | NonPerforming | 10.45 | 10.22 | 10.74 | 11.78 |
 | Performing    | 89.55 | 89.78 | 89.26 | 88.22 |
 
+
+<br>
 **Inquiries in Past 6 Months**  
 Number of inquiries.  There's an increase in delinquincies as inquiries increases, until the 4+ bucket where we see a slight decrease. This may reflect that those with a very high number of inquiries are possibly more savvy borrowers.  
 
@@ -165,6 +171,7 @@ Number of inquiries.  There's an increase in delinquincies as inquiries increase
 | Performing    | 91.23 | 88.95 | 86.92 | 84.87 | 85.87 |
 
 
+<br>
 **Open Accounts**  
 Slight decrease in delinquencies as this grows, but not a very strong indicator:  
 
@@ -174,6 +181,7 @@ Slight decrease in delinquencies as this grows, but not a very strong indicator:
 | Performing    | 89.17 | 89.63  | 89.51   | 89.60 |
 
 
+<br>
 **Number of Public Records**  
 Default probability actually goes down as you move from 0 to 1 to 2, possibly indicating stricter lending standards from Lending Club on those borrowers with public records:  
 
@@ -182,6 +190,8 @@ Default probability actually goes down as you move from 0 to 1 to 2, possibly in
 | NonPerforming | 10.61 | 9.00  | 8.72  |
 | Performing    | 89.39 | 91.00 | 91.28 |
 
+
+<br>
 **Number of Total Accounts**  
 showed a significant decrease in delinquencies for numbers smaller than 20, but showed no real changes after that, so I focused in on the smaller ranges:  
 
@@ -191,6 +201,7 @@ showed a significant decrease in delinquencies for numbers smaller than 20, but 
 | Performing    | 86.94 | 88.37  | 88.85   | 89.35   | 90.05 |  
 
 
+<br>
 **Debt to Income Ratio**  
 Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defaults as DTI increases  
 
@@ -200,6 +211,7 @@ Bucketed into 5% increments, from 0% to 35%. There is a steady increase in defau
 | Performing    | 91.92 | 91.69  | 90.77   | 89.63   | 87.94   | 87.34   | 86.25   |
 
 
+<br>
 **Revolving Utilization Percent**  
 shows a stead increase in default rates  
 
@@ -209,6 +221,7 @@ shows a stead increase in default rates
 | Performing    | 92.68  | 91.73   | 91.07   | 90.72   | 90.32   | 89.06   | 88.43   | 87.09 |
 
 
+<br>
 **Annual Income**  
 Split into percentile buckets  
 
@@ -219,6 +232,7 @@ Split into percentile buckets
 | Performing    | 86.63    | 88.43         | 89.43         | 91.01         | 92.49      |
 
 
+<br>
 **Loan Amount**  
 Loan amount shows no large differences for values less than 15000. Loans from 15000 to 30000 fare slightly worse, but loans in the 30000 - 35000 range (the Lending Club maximum) perform significantly worse:  
 
@@ -227,6 +241,8 @@ Loan amount shows no large differences for values less than 15000. Loans from 15
 | NonPerforming | 11505     | 7065          | 1097          |
 | Performing    | 103524    | 57453         | 7478          |
 
+
+<br>
 **Loan Purpose**  
 
 |               | Small Biz. | Other | Moving | Medical | Wedding | House | Vacation | Consolidation | Major Purch. | Home Imp. | Car   | Credit Card |
@@ -235,8 +251,8 @@ Loan amount shows no large differences for values less than 15000. Loans from 15
 | Performing    | 78.94      | 85.92 | 86.15  | 86.50   | 87.66   | 87.83 | 88.22    | 89.11         | 90.75        | 91.16     | 91.32 | 91.88       |
 
 
-
-
+<br>
+<br>
 **Variables that were not significant:**
 - Months since last delinquency. Interestingly, I did not find any significant differences here.
 - Months since last major derog did not show a very significant impact on default rates
@@ -246,9 +262,9 @@ Loan amount shows no large differences for values less than 15000. Loans from 15
 
 
 
-### Appendix
+## Appendix
 
-Below I've included the code used to generate the numbers in the tables above. You can also find the complete code available on my Github
+Below I've included the code used to generate the numbers in the tables above. You can also find the [complete code available on Github]((https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R)  
 
 ```R
 ### Explore the relationships between default rates and factor levels
