@@ -6,13 +6,13 @@ Category: R
 Tags: R, Projects  
 Slug: LendingClub  
 author_gplusid: 103836786232018210272  
-Summary: This post briefly discusses the background of peer-to-peer lending before diving into some exploratory data analysis on the Lending Club data set. This will be the first in a series of posts designed to create a predictive model to determine the probability of default in for peer-to-peer loans.
+Summary: This post briefly discusses the background of peer-to-peer lending before diving into some exploratory data analysis on the Lending Club data set. This will be the first in a series of posts with the aim of creating a predictive model to determine the probability of default for peer-to-peer loans.
 
-In case you're unfamiliar, Lending Club is the world's largest peer-to-peer lending company, offering a platform for borrowers and lenders to work directly with one another, eliminating the need for a financial intermediary like a bank. Removing the middle-man generally allows both borrowers and lenders to receive better interest rates than they otherwise would, which makes peer-to-peer lending an attractive proposition. This post will be the first in a series of posts analyzing the probability of default and expected return of Lending Club notes. In this first post, I'll cover some of the background on Lending Club, talk about getting and cleaning the loan data, and perform some exploratory analysis on the available variables and outcomes. In subsequent posts, I'll work on developing a predictive model for determining the probability of default for a given loan. *Before investing, it is always important to fully understand the risks, and this post does not constitute investment advice in either Lending Club or in Lending Club notes.*  
+In case you're unfamiliar, Lending Club is the world's largest peer-to-peer lending company, offering a platform for borrowers and lenders to work directly with one another, eliminating the need for a financial intermediary like a bank. Removing the middle-man generally allows both borrowers and lenders to benefit from better interest rates than they otherwise would, which makes peer-to-peer lending an attractive proposition. This post will be the first in a series of posts analyzing the probability of default and expected return of Lending Club notes. In this first post, I'll cover some of the background on Lending Club, talk about getting and cleaning the loan data, and perform some exploratory analysis on the available variables and outcomes. In subsequent posts, I'll work on developing a predictive model for determining the loan default probabilities. *Before investing, it is always important to fully understand the risks, and this post does not constitute investment advice in either Lending Club or in Lending Club notes.*  
 
 ## Background and Gathering Data
 
-Lending Club makes all past borrower data freely available [on their website](https://www.lendingclub.com/info/download-data.action) for review, and this is the data that I will be referencing throughout this post.  
+Lending Club makes all past borrower data freely available [on their website](https://www.lendingclub.com/info/download-data.action) for review, and I will be referencing the 2012-2013 data throughout this post.  
 
 To download the 2012-2013 data from Lending Club:  
 
@@ -31,7 +31,7 @@ if (!exists("full_dataset")) {
 }
 ```
 
-For each loan in the file, Lending Club provides an indication of the current loan status. Because many of the loan statuses represent similar outcomes, I've mapped them from Lending Club's 7 down to only 2, simplifying the classification problem without much loss of information. The two outcomes "Performing" and "NonPerforming" seek to separate those loans likely to pay in full from those likely to default. Below I include a table summarizing the mappings:   
+For each loan in the file, Lending Club provides an indication of the current loan status. Because many of the loan statuses represent similar outcomes, I've mapped them from Lending Club's 7 down to only 2, simplifying the problem of classifying loan outcomes without much loss of information useful for investment decisions. My two outcomes "Performing" and "NonPerforming" seek to separate those loans likely to pay in full from those likely to default. Below I include a table summarizing the mappings:   
 
 | Status               | Mapping       | Description                                                              |
 |----------------------|---------------|--------------------------------------------------------------------------|
@@ -44,7 +44,7 @@ For each loan in the file, Lending Club provides an indication of the current lo
 | Charged Off          | NonPerforming | Loan for which there is no reasonable expectation of additional payments |
 
 
-Next, let's extract the fields we need and format the data. I eliminate any fields that would not have been known at the time of issuance. I also eliminate a few indicative data fields that are repetitive or too granular to be analyzed, and make some formatting changes to get the data ready for analysis. Finally, I map the loan statuses to the binary "Performing" and "NonPerforming" classifiers as discussed above.  
+Now that we've loaded the data, let's extract the fields we need and do some cleaning. We can eliminate any fields that would not have been known at the time of issuance, as we'll be trying to make decisions on loan investments using available pre-issuance data. We can also eliminate a few indicative data fields that are repetitive or too granular to be analyzed, and make some formatting changes to get the data ready for analysis. Finally, we'll map the loan statuses to the binary "Performing" and "NonPerforming" classifiers as discussed above.  
 
 ```R
 # Select variables to keep and subset the data
@@ -78,7 +78,7 @@ train$revol_util <- as.numeric(sub("%", "", train$revol_util))
 
 <br>
 #### Lending Club Grades and Subgrades  
-All types of borrowers are using peer-to-peer lending for a variety of purposes. This raises the question of how to determine appropriate interest rates given the varying levels of risk across borrowers. Lending Club has developed an algorithm to a given borrower's level of risk, and they set the interest rates according to the risk level. Specifically, Lending Club maps borrowers to a series of grades [A-F] and subgrades [A-F][1-5] based on their risk profile.  Loans in each subgrade are then given appropriate interest rates, which change over time according to market conditions, but generally fall within a particular range for each subgrade. 
+All types of borrowers are using peer-to-peer lending for a variety of purposes. This raises the question of how to determine appropriate interest rates given the varying levels of risk across borrowers. Luckily for us, Lending Club handles this for us. They use an algorithm to determine a borrower's level of risk, and then set the interest rates according to the level of risk. Specifically, Lending Club maps borrowers to a series of grades [A-F] and subgrades [A-F][1-5] based on their risk profile.  Loans in each subgrade are then given appropriate interest rates. The specific rates will change over time according to market conditions, but generally they will fall within a tight range for each subgrade. 
 
 Let's take a look at the proportions of performing and non-performing loans by Lending Club's provided grades:  
 
@@ -100,18 +100,18 @@ We can see from the chart below that rates of default steadily increase as the l
 <img src="http://www.michaeltoth.net/img/by_grade.png", alt="Performance by Grade")>  
 <br> 
 
-We see a similar pattern in the subgrades, although there is a bit of fluctuation in the rates of default for the G1-G5 subgrades.  On further investigation, I found that there are only a few hundred data points for each of these subgrades, in contrast to thousands of data points for the A-F subgrades, and these differences are not large enough to be significant.
+We see a similar pattern for the subgrades, although the trend begins to weaken across the G1-G5 subgrades. On further investigation, I found that there are only a few hundred data points for each of these subgrades, in contrast to thousands of data points for the A-F subgrades, and these differences are not large enough to be significant.
 
 <br>
 <img src="http://www.michaeltoth.net/img/by_subgrade.png", alt="Performance by SubGrade")>  
 <br> 
 
-In general, it looks like the Lending Club grading system does a pretty great job of predicting ultimate loan performance, but let's check out some of the other available data to see what else we can find.
+In general, it looks like the Lending Club grading system does a pretty great job of predicting ultimate loan performance, but let's check out some of the other available data to see what other trends we might be able to find in the data.
 
 <br>
 ####Home Ownership
 
-The Lending Club data shows 3 main classifications for home ownership: mortgage (outstanding mortgage payment), own (home is owned outright), and rent. I would expect those with mortgages to default less frequently than those who rent, both because there are credit requirements to get a mortgage and because those with mortgages will in aggregate tend to be in better financial health. Let's see whether this is actually the case:  
+The Lending Club data has 3 main classifications for home ownership: mortgage (outstanding mortgage payment), own (home is owned outright), and rent. I would expect those with mortgages to default less frequently than those who rent, both because there are credit requirements to get a mortgage and because those with mortgages might in general tend to be more established. Let's see whether this is actually the case:  
 
 ```R
 ownership_status <- table(train$new_status,train$home_ownership,
@@ -125,7 +125,7 @@ prop_ownership <- round(prop.table(ownership_status, 2) * 100, 2)
 | NonPerforming | 9.01     | 10.71 | 12.25 |
 | Performing    | 90.99    | 89.29 | 87.75 |
 
-So those with mortgages default the least, followed by those who own their homes outright and finally those who rent.  The differences here are much smaller than when comparing different grades, but they are still notable. Let's see whether these are statistically significant:  
+So those with mortgages default the least, followed by those who own their homes outright and finally those who rent.  The differences here are much smaller than when comparing different grades, but they are still notable. Let's verify whether these are statistically significant:  
 
 
 ```R
@@ -146,13 +146,13 @@ prop.test(c(dflt_m,dflt_o), c(count_m,count_o), alternative = "less")
 prop.test(c(dflt_o,dflt_r), c(count_o,count_r), alternative = "less")
 ```
 
-The p-value of the first test was 6.377*10^-12 and the p-value for the second test was 3.787*10^-8, indicating that the differences in both of these proportions are very statistically significant. Although the differences in the default probabilities are somewhat small, on the order of 1.5%, the number of data points is in the high tens of thousands, which contributes to the significance. Given this result, we can safely conclude that similar differences in default probabilities for other factors should also be significant, so long as a similar quantity of data points is available.  
+The p-value of the first test was 6.377\*10^-12 and the p-value for the second test was 3.787\*10^-8, indicating that the differences in both of these proportions are very statistically significant. Although the differences in the default probabilities are somewhat small, on the order of 1.5%, the number of data points is in the high tens of thousands, which contributes to the significance. Given this result, we can generally conclude that similar differences in default probabilities for other factors should also be significant, so long as a similar quantity of data points is available.  
 
-**Note:** for the remaining analysis, the analysis code for each variable becomes a bit repetitive, so I will present only the results. If you are interested to see the code used to generate the results, you will find it in the appendix at the bottom of this post.  You can also read the [complete code on Github](https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R).  
+**Note:** for the remaining analysis, the code for each variable becomes a bit repetitive, so in the interest of minimizing the length of this post I will present only the results. If you are interested to see the actual code, you will find it in the appendix at the bottom of this post. You can also read the [complete code on Github](https://github.com/michaeltoth/lending_club/blob/master/LendingClub.R).  
 
 <br>
 ####Debt to Income Ratio
-Debt to income ratio shows the ratio between the borrowers monthly debt payment and monthly income. This was a continuous variable, and I bucketed into 5% increments to better see the effect on loan performance. As we might expect, there is a steady increase in the percentage of non-performing loans as DTI increases, reflecting the constraints that increased debt put onto ability to repay:  
+Debt to income ratio indicates the ratio between a borrowers monthly debt payment and monthly income. This was originally formatted as a continuous numerical variable, but I bucketed it into 5% increments to better visualize the effect on loan performance. As we might expect, there is a steady increase in the percentage of non-performing loans as DTI increases, reflecting the constraints that increased debt put onto borrower ability to repay:  
 
 |               | 0% - 5% | 5% - 10% | 10% - 15% | 15% - 20% | 20% - 25% | 25% - 30% | 30% - 35% |
 |---------------|---------|----------|-----------|-----------|-----------|-----------|-----------|
@@ -172,7 +172,7 @@ Revolving utilization percent is the portion of a borrower's revolving credit li
 
 <br>
 ####Loan Purpose
-Loan purpose refers to the borrower's stated reason for taking out the loan.  We see below that credit card and debt consolidation tend to have lower rates of nonperformance, along with home improvement, cars, and other major purchases. Luxury spending on vacations and weddings and unexpected medical and moving expenses show worse performance. Small business loans perform very poorly, perhaps reflecting the fact that those borrowers unable to get bank financing for their small business may have poor credit or business plans.  
+Loan purpose refers to the borrower's stated reason for taking out the loan.  We see below that credit card and debt consolidation tend to have better performance, along with home improvement, cars, and other major purchases. Luxury spending on vacations and weddings and unexpected medical and moving expenses generally have worse performance. Small business loans perform very poorly, perhaps reflecting the fact that those borrowers unable to get bank financing for their small business may have poor credit or business plans that aren't fully developed.  
 
 |               | Small Biz. | Other | Moving | Medical | Wedding | House | Vacation | Consolidation | Major Purch. | Home Imp. | Car   | Credit Card |
 |---------------|------------|-------|--------|---------|---------|-------|----------|---------------|--------------|-----------|-------|-------------|
@@ -182,7 +182,7 @@ Loan purpose refers to the borrower's stated reason for taking out the loan.  We
 
 <br>
 ####Inquiries in the Past 6 Months 
-Number of inquiries refers to the number of times a borrower's credit report is accessed by financial institutions, which generally happens when the borrower is seeking a loan or credit line. More inquiries leads to higher rates of nonperformance, perhaps indicating that borrower desperation to access credit might highlight poor financial health.  Interesting is that we see an increase in loan performance in the 4+ bucket, perhaps reflecting financially savvy borrowers.  
+Number of inquiries refers to the number of times a borrower's credit report is accessed by financial institutions, which generally happens when the borrower is seeking a loan or credit line. More inquiries leads to higher rates of nonperformance, perhaps indicating that increased borrower desperation to access credit might highlight poor financial health. Interestingly, we see an increase in loan performance in the 4+ inquiries bucket. These high levels of inquiries may reflect financially savvy borrowers shopping around for mortgage loans or credit cards.  
 
 |               | 0     | 1     | 2     | 3     | 4+    |
 |---------------|-------|-------|-------|-------|-------|
@@ -192,7 +192,7 @@ Number of inquiries refers to the number of times a borrower's credit report is 
 
 <br>
 ####Number of Total Accounts
-A larger number of total accounts indicates a longer credit history and a high level of trust between the borrower and financial institutions, both of which point to financial health and lower rates of default.  We see sharp increases in the rates of performing loans as the number of accounts increases from 7 to around 20, but diminishing effects after that.  
+A larger number of total accounts indicates a longer credit history and a high level of trust between the borrower and financial institutions, both of which point to financial health and lower rates of default. We see steady increases in the rates of performing loans as the number of accounts increases from 7 to around 20, but diminishing effects after that.  
 
 |               | <= 7  | 8 - 12 | 13 - 17 | 18 - 22 | 23+   |
 |---------------|-------|--------|---------|---------|-------|
@@ -202,7 +202,7 @@ A larger number of total accounts indicates a longer credit history and a high l
 
 <br>
 ####Annual Income
-As we might expect, the higher a borrower's annual income the more likely they are to be able to repay their loans.  Below I've broken the data into quintiles, and we can see that those in the top 20% of annual incomes ($95000 +) are approximately 6% more likely to be performing borrowers than those in the bottom 20% (less than $42000).  
+As we might expect, the higher a borrower's annual income the more likely they are to be able to repay their loans.  Below I've broken the income data into quintiles, and we can see that those in the top 20% of annual incomes ($95000 +) are approximately 6% more likely to be performing borrowers than those in the bottom 20% (less than $42000).  
 
 |               | 0% - 20%  | 20% - 40%       | 40% - 60%       | 60% - 80%       | 80% - 100%  |
 |---------------|-----------|-----------------|-----------------|-----------------|-------------|
@@ -213,7 +213,7 @@ As we might expect, the higher a borrower's annual income the more likely they a
 
 <br>
 ####Loan Amount
-As the amount borrowed increases, we see increasing rates of nonperforming loans. The differences between the first two buckets are only around 1% (and the intra-bucket differences are very small), but we see a market decrease in loan quality in the $30,000 - $35,000 bucket (Lending Club maximum loan is $35,000).    
+As the amount borrowed increases, we see increasing rates of nonperforming loans. The difference between the first two buckets is only around 1% (and the intra-bucket differences are very small), but we see a larger decrease in loan quality in the $30,000 - $35,000 bucket. Noting that the Lending Club maximum loan is $35,000, this may indicate particularly desperate borrowers who are maximizing their possible borrowing.    
 
 |               | $0 - $15000 | $15000 - $30000 | $30000 - $35000 |
 |---------------|-------------|-----------------|-----------------|
@@ -223,7 +223,7 @@ As the amount borrowed increases, we see increasing rates of nonperforming loans
 
 <br>
 ####Employment Length
-We'd expect those who have been employed longer to be more stable, and thus less likely to default. Looking into the data, 3 key groups emerged: the unemployed, those employed less than 10 years, and those employed for 10+ years:
+We'd expect those who have been employed longer to be more stable, and thus less likely to default. Looking into the data, 3 key groups emerged: the unemployed, those employed less than 10 years, and those employed for 10+ years:  
 
 |               | None   | < 10 years | 10+ years |
 |---------------|--------|------------|-----------|
@@ -233,7 +233,7 @@ We'd expect those who have been employed longer to be more stable, and thus less
 
 <br>
 ####Delinquencies in the Past 2 Years  
-The number of delinquencies in the past 2 years shows the number of times a borrower has been behind on payments. I combined all values 3 or larger into a single bucket for analysis, as this was a right-tailed distribution. Interestingly, those with a single delinquency seem to perform more often than those with none. In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant increase in nonperformance.  
+The number of delinquencies in the past 2 years indicates the number of times a borrower has been behind on payments. I combined all values 3 or larger into a single bucket for analysis, as this was a long right-tailed distribution. Interestingly, those with a single delinquency seem to perform more often than those with none. In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant decrease in performance.  
 
 |               | 0     | 1     | 2     | 3+    |
 |---------------|-------|-------|-------|-------|
@@ -243,7 +243,7 @@ The number of delinquencies in the past 2 years shows the number of times a borr
 
 <br>
 ####Number of Open Accounts
-Unlike the number of total accounts above, which we saw to be quite significant, the number of open accounts variable did not show particularly large differences between the buckets I defined below:  
+Unlike the number of total accounts above, which we saw to be quite significant, the number of open accounts variable was not a particularly strong indicator:  
 
 |               | <= 5  | 6 - 10 | 11 - 15 | 16+   |
 |---------------|-------|--------|---------|-------|
@@ -253,7 +253,7 @@ Unlike the number of total accounts above, which we saw to be quite significant,
 
 <br>
 ####Verified Income Status
-There are three verified income statuses: not verified, source verified, and verified. Verified income means that Lending Club independently verified both the source and size of reported income, source verified means that they verified only the source, and not verified means there was no independent verification of the reported values. Interestingly, we see that as the standards of verification increase, the loan performance actually worsens. During the mortgage crisis, non-verified "no-doc" loans were among the worst performing, so the reversal here is interesting. This likely reflects the fact that Lending Club only verifies those borrowers who seem to be of worse credit quality, so there may be [confounding variables](http://en.wikipedia.org/wiki/Confounding) present here.  
+Lending Club categorizes income verification into three statuses: not verified, source verified, and verified. Verified income means that Lending Club independently verified both the source and size of reported income, source verified means that they verified only the source of the income, and not verified means there was no independent verification of the reported values. Interestingly, we see that as income verification increases, the loan performance actually worsens. During the mortgage crisis, non-verified "no-doc" loans were among the worst performing, so the reversal here is interesting. This likely reflects the fact that Lending Club only verifies those borrowers who seem to be of worse credit quality, so there may be [confounding variables](http://en.wikipedia.org/wiki/Confounding) present here.  
 
 |               | Not Verified | Source Verified | Verified |
 |---------------|--------------|-----------------|----------|
@@ -263,7 +263,7 @@ There are three verified income statuses: not verified, source verified, and ver
 
 <br>
 ####Number of Public Records
-Public records generally refer to bankruptcies. Interesting, performance actually increases as you move from 0 to 1 to 2, possibly indicating stricter lending standards from Lending Club on those borrowers with public records:  
+Public records generally refer to bankruptcies, so we would expect those with more public records to show worse performance. Actually, performance increases as we move from 0 to 1 to 2 public records. This possibly indicates stricter lending standards from Lending Club on those borrowers with public records:  
 
 |               | 0     | 1     | 2+    |
 |---------------|-------|-------|-------|
@@ -279,7 +279,9 @@ Public records generally refer to bankruptcies. Interesting, performance actuall
 ## Summary
 - Lending club grade and subgrade variables provide the most predictive power for determining expected loan performance.
 - A large number of the other variables also provide strong indications of expected performance.  Among the most telling are debt-to-income ratio, credit utilization rate, home ownership status, loan purpose, annual income, inquiries in the past 6 months, and number of total accounts.
-- Verified income status, months since last record, and number of public records show results opposite from what we would expect. This is likely due to increased standards on borrowers with poorer credit history, so all else equal we see outperformance counter to expectations.  
+- Verified income status and number of public records show results opposite from what we would expect. This is likely due to increased standards on borrowers with poorer credit history, so all else equal we see outperformance in these loans.
+
+We've gotten a good understanding of the available borrower data, and we've seen which variables give the best indiciations of future loan performance. In the next post, We'll work on developing a predictive model for projecting the probability of default for newly issued loans.  
 
 
 ## Appendix
