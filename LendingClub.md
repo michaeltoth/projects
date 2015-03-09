@@ -174,10 +174,20 @@ Revolving utilization percent is the portion of a borrower's revolving credit li
 ####Loan Purpose
 Loan purpose refers to the borrower's stated reason for taking out the loan.  We see below that credit card and debt consolidation tend to have better performance, along with home improvement, cars, and other major purchases. Luxury spending on vacations and weddings and unexpected medical and moving expenses generally have worse performance. Small business loans perform very poorly, perhaps reflecting the fact that those borrowers unable to get bank financing for their small business may have poor credit or business plans that aren't fully developed.  
 
-|               | Small Biz. | Other | Moving | Medical | Wedding | House | Vacation | Consolidation | Major Purch. | Home Imp. | Car   | Credit Card |
-|---------------|------------|-------|--------|---------|---------|-------|----------|---------------|--------------|-----------|-------|-------------|
-| NonPerforming | 21.06      | 14.08 | 13.85  | 13.50   | 12.34   | 12.17 | 11.78    | 10.89         | 9.25         | 8.84      | 8.68  | 8.12        |
-| Performing    | 78.94      | 85.92 | 86.15  | 86.50   | 87.66   | 87.83 | 88.22    | 89.11         | 90.75        | 91.16     | 91.32 | 91.88       |
+|                 |  NonPerforming  |  Performing     |
+|-----------------|-----------------|-----------------|
+|  Small Biz.     | 21.06           | 78.94           |
+|  Other          | 14.08           | 85.92           |
+|  Moving         | 13.85           | 86.15           |
+|  Medical        | 13.5            | 86.5            |
+|  Wedding        | 12.34           | 87.66           |
+|  House          | 12.17           | 87.83           |
+|  Vacation       | 11.78           | 88.22           |
+|  Consolidation  | 10.89           | 89.11           |
+|  Major Purch.   | 9.25            | 90.75           |
+|  Home Imp.      | 8.84            | 91.16           |
+|  Car            | 8.68            | 91.32           |
+|  Credit Card    | 8.12            | 91.88           |
 
 
 <br>
