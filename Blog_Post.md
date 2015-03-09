@@ -33,15 +33,9 @@ if (!exists("full_dataset")) {
 
 For each loan in the file, Lending Club provides an indication of the current loan status. Because many of the loan statuses represent similar outcomes, I've mapped them from Lending Club's 7 down to only 2, simplifying the problem of classifying loan outcomes without much loss of information useful for investment decisions. My two outcomes "Performing" and "NonPerforming" seek to separate those loans likely to pay in full from those likely to default. Below I include a table summarizing the mappings:   
 
-| Status               | Mapping       | Description                                                              |
-|----------------------|---------------|--------------------------------------------------------------------------|
-| Fully Paid           | Performing    | Loan has been fully repaid                                               |
-| Current              | Performing    | Loan is up to date on all payments                                       |
-| In Grace Period      | NonPerforming | Loan is between 0 and 15 days past due                                   |
-| Late (16 - 30 days)  | NonPerforming | Loan is between 16 and 30 days past due                                  |
-| Late (31 - 120 days) | NonPerforming | Loan is between 31 and 120 days past due                                 |
-| Default              | NonPerforming | Loan is over 121 days past due                                           |
-| Charged Off          | NonPerforming | Loan for which there is no reasonable expectation of additional payments |
+<br>
+<img src="http://www.michaeltoth.net/img/Loan_Statuses.jpg", alt="Loan Statuses")>  
+<br> 
 
 
 Now that we've loaded the data, let's extract the fields we need and do some cleaning. We can eliminate any fields that would not have been known at the time of issuance, as we'll be trying to make decisions on loan investments using available pre-issuance data. We can also eliminate a few indicative data fields that are repetitive or too granular to be analyzed, and make some formatting changes to get the data ready for analysis. Finally, we'll map the loan statuses to the binary "Performing" and "NonPerforming" classifiers as discussed above.  
@@ -120,10 +114,9 @@ ownership_status <- table(train$new_status,train$home_ownership,
 prop_ownership <- round(prop.table(ownership_status, 2) * 100, 2)
 ```
 
-|               | MORTGAGE | OWN   | RENT  |
-|---------------|----------|-------|-------|
-| NonPerforming | 9.01     | 10.71 | 12.25 |
-| Performing    | 90.99    | 89.29 | 87.75 |
+<br>
+<img src="http://www.michaeltoth.net/img/Ownership_Status.jpg", alt="Ownership Status")>  
+<br> 
 
 So those with mortgages default the least, followed by those who own their homes outright and finally those who rent.  The differences here are much smaller than when comparing different grades, but they are still notable. Let's verify whether these are statistically significant:  
 
@@ -154,131 +147,107 @@ The p-value of the first test was 6.377\*10^-12 and the p-value for the second t
 ####Debt to Income Ratio
 Debt to income ratio indicates the ratio between a borrowers monthly debt payment and monthly income. This was originally formatted as a continuous numerical variable, but I bucketed it into 5% increments to better visualize the effect on loan performance. As we might expect, there is a steady increase in the percentage of non-performing loans as DTI increases, reflecting the constraints that increased debt put onto borrower ability to repay:  
 
-|               | 0% - 5% | 5% - 10% | 10% - 15% | 15% - 20% | 20% - 25% | 25% - 30% | 30% - 35% |
-|---------------|---------|----------|-----------|-----------|-----------|-----------|-----------|
-| NonPerforming | 8.08    | 8.31     | 9.23      | 10.37     | 12.06     | 12.66     | 13.75     |
-| Performing    | 91.92   | 91.69    | 90.77     | 89.63     | 87.94     | 87.34     | 86.25     |
+<br>
+<img src="http://www.michaeltoth.net/img/DTI.jpg", alt="Debt to Income Ratio")>  
+<br> 
 
 
 <br>
 ####Revolving Utilization Percent
 Revolving utilization percent is the portion of a borrower's revolving credit limit (i.e. credit card limit) that they actually are using at any given point. For example, if a borrower's total credit limit is $15,000 and their outstanding balance is $1,500 their utilization rate would be 10%. We can see below that the percentage of non-performing loans steadily increases with utilization rate. Borrowers with high utilization rates are more likely to have high fixed credit card payments which might affect their ability to repay their loans. Also, a high utilization rate often reflects a lack of other financing options, with borrowers turning to peer-to-peer lending as a last resort. This is in contrast to those borrowers with low utilization rates, who may be using peer-to-peer lending opportunistically to pursue lower interest payments.  
 
-|               | 0% - 20% | 20% - 30% | 30% - 40% | 40% - 50% | 50% - 60% | 60% - 70% | 70% - 80% | 80% +  |
-|---------------|----------|-----------|-----------|-----------|-----------|-----------|-----------|--------|
-| NonPerforming | 7.32     | 8.27      | 8.93      | 9.28      | 9.68      | 10.94     | 11.57     | 12.91  |
-| Performing    | 92.68    | 91.73     | 91.07     | 90.72     | 90.32     | 89.06     | 88.43     | 87.09  |
+<br>
+<img src="http://www.michaeltoth.net/img/Utilization.jpg", alt="Revolving Utilization")>  
+<br> 
 
 
 <br>
 ####Loan Purpose
 Loan purpose refers to the borrower's stated reason for taking out the loan.  We see below that credit card and debt consolidation tend to have better performance, along with home improvement, cars, and other major purchases. Luxury spending on vacations and weddings and unexpected medical and moving expenses generally have worse performance. Small business loans perform very poorly, perhaps reflecting the fact that those borrowers unable to get bank financing for their small business may have poor credit or business plans that aren't fully developed.  
 
-|                 |  NonPerforming  |  Performing     |
-|-----------------|-----------------|-----------------|
-|  Small Biz.     | 21.06           | 78.94           |
-|  Other          | 14.08           | 85.92           |
-|  Moving         | 13.85           | 86.15           |
-|  Medical        | 13.5            | 86.5            |
-|  Wedding        | 12.34           | 87.66           |
-|  House          | 12.17           | 87.83           |
-|  Vacation       | 11.78           | 88.22           |
-|  Consolidation  | 10.89           | 89.11           |
-|  Major Purch.   | 9.25            | 90.75           |
-|  Home Imp.      | 8.84            | 91.16           |
-|  Car            | 8.68            | 91.32           |
-|  Credit Card    | 8.12            | 91.88           |
+<br>
+<img src="http://www.michaeltoth.net/img/Loan_Purpose.jpg", alt="Loan Purpose")>  
+<br> 
 
 
 <br>
 ####Inquiries in the Past 6 Months 
 Number of inquiries refers to the number of times a borrower's credit report is accessed by financial institutions, which generally happens when the borrower is seeking a loan or credit line. More inquiries leads to higher rates of nonperformance, perhaps indicating that increased borrower desperation to access credit might highlight poor financial health. Interestingly, we see an increase in loan performance in the 4+ inquiries bucket. These high levels of inquiries may reflect financially savvy borrowers shopping around for mortgage loans or credit cards.  
 
-|               | 0     | 1     | 2     | 3     | 4+    |
-|---------------|-------|-------|-------|-------|-------|
-| NonPerforming | 8.77  | 11.05 | 13.08 | 15.13 | 14.13 |
-| Performing    | 91.23 | 88.95 | 86.92 | 84.87 | 85.87 |
+<br>
+<img src="http://www.michaeltoth.net/img/Inquiries.jpg", alt="Inquiries")>  
+<br> 
 
 
 <br>
 ####Number of Total Accounts
 A larger number of total accounts indicates a longer credit history and a high level of trust between the borrower and financial institutions, both of which point to financial health and lower rates of default. We see steady increases in the rates of performing loans as the number of accounts increases from 7 to around 20, but diminishing effects after that.  
 
-|               | <= 7  | 8 - 12 | 13 - 17 | 18 - 22 | 23+   |
-|---------------|-------|--------|---------|---------|-------|
-| NonPerforming | 13.06 | 11.63  | 11.15   | 10.65   | 9.95  |
-| Performing    | 86.94 | 88.37  | 88.85   | 89.35   | 90.05 |  
+<br>
+<img src="http://www.michaeltoth.net/img/Total_Accounts.jpg", alt="Total Accounts")>  
+<br>  
 
 
 <br>
 ####Annual Income
 As we might expect, the higher a borrower's annual income the more likely they are to be able to repay their loans.  Below I've broken the income data into quintiles, and we can see that those in the top 20% of annual incomes ($95000 +) are approximately 6% more likely to be performing borrowers than those in the bottom 20% (less than $42000).  
 
-|               | 0% - 20%  | 20% - 40%       | 40% - 60%       | 60% - 80%       | 80% - 100%  |
-|---------------|-----------|-----------------|-----------------|-----------------|-------------|
-| Income Level  | < $42000  | $42000 - $55000 | $55000 - $70000 | $70000 - $95000 | $95000 +    |
-| NonPerforming | 13.37     | 11.57           | 10.57           | 8.99            | 7.51        |
-| Performing    | 86.63     | 88.43           | 89.43           | 91.01           | 92.49       |
+<br>
+<img src="http://www.michaeltoth.net/img/Annual_Income.jpg", alt="Annual Income")>  
+<br> 
 
 
 <br>
 ####Loan Amount
 As the amount borrowed increases, we see increasing rates of nonperforming loans. The difference between the first two buckets is only around 1% (and the intra-bucket differences are very small), but we see a larger decrease in loan quality in the $30,000 - $35,000 bucket. Noting that the Lending Club maximum loan is $35,000, this may indicate particularly desperate borrowers who are maximizing their possible borrowing.    
 
-|               | $0 - $15000 | $15000 - $30000 | $30000 - $35000 |
-|---------------|-------------|-----------------|-----------------|
-| NonPerforming | 10.00       | 10.95           | 12.79           |
-| Performing    | 90.00       | 89.05           | 87.21           |
+<br>
+<img src="http://www.michaeltoth.net/img/Loan_Amount.jpg", alt="Loan Amount")>  
+<br> 
 
 
 <br>
 ####Employment Length
 We'd expect those who have been employed longer to be more stable, and thus less likely to default. Looking into the data, 3 key groups emerged: the unemployed, those employed less than 10 years, and those employed for 10+ years:  
 
-|               | None   | < 10 years | 10+ years |
-|---------------|--------|------------|-----------|
-| NonPerforming | 12.17  | 10.84      | 9.49      |
-| Performing    | 87.83  | 89.16      | 90.51     |
+<br>
+<img src="http://www.michaeltoth.net/img/Employment_Length.jpg", alt="Employment Length")>  
+<br> 
 
 
 <br>
 ####Delinquencies in the Past 2 Years  
 The number of delinquencies in the past 2 years indicates the number of times a borrower has been behind on payments. I combined all values 3 or larger into a single bucket for analysis, as this was a long right-tailed distribution. Interestingly, those with a single delinquency seem to perform more often than those with none. In general however, the differences between 0, 1, and 2 delinquencies are relatively small, while those with greater than 3 show a significant decrease in performance.  
 
-|               | 0     | 1     | 2     | 3+    |
-|---------------|-------|-------|-------|-------|
-| NonPerforming | 10.45 | 10.22 | 10.74 | 11.78 |
-| Performing    | 89.55 | 89.78 | 89.26 | 88.22 |
+<br>
+<img src="http://www.michaeltoth.net/img/Delinquencies.jpg", alt="Delinquincies")>  
+<br> 
 
 
 <br>
 ####Number of Open Accounts
 Unlike the number of total accounts above, which we saw to be quite significant, the number of open accounts variable was not a particularly strong indicator:  
 
-|               | <= 5  | 6 - 10 | 11 - 15 | 16+   |
-|---------------|-------|--------|---------|-------|
-| NonPerforming | 10.83 | 10.37  | 10.49   | 10.40 |
-| Performing    | 89.17 | 89.63  | 89.51   | 89.60 |
+<br>
+<img src="http://www.michaeltoth.net/img/Open_Accounts.jpg", alt="Open Accounts")>  
+<br> 
 
 
 <br>
 ####Verified Income Status
 Lending Club categorizes income verification into three statuses: not verified, source verified, and verified. Verified income means that Lending Club independently verified both the source and size of reported income, source verified means that they verified only the source of the income, and not verified means there was no independent verification of the reported values. Interestingly, we see that as income verification increases, the loan performance actually worsens. During the mortgage crisis, non-verified "no-doc" loans were among the worst performing, so the reversal here is interesting. This likely reflects the fact that Lending Club only verifies those borrowers who seem to be of worse credit quality, so there may be [confounding variables](http://en.wikipedia.org/wiki/Confounding) present here.  
-
-|               | Not Verified | Source Verified | Verified |
-|---------------|--------------|-----------------|----------|
-| NonPerforming | 9.24         | 10.49           | 11.26    |
-| Performing    | 90.76        | 89.51           | 88.74    |
+<br>
+<img src="http://www.michaeltoth.net/img/Verified_Income.jpg", alt="Verified Income")>  
+<br> 
 
 
 <br>
 ####Number of Public Records
 Public records generally refer to bankruptcies, so we would expect those with more public records to show worse performance. Actually, performance increases as we move from 0 to 1 to 2 public records. This possibly indicates stricter lending standards from Lending Club on those borrowers with public records:  
 
-|               | 0     | 1     | 2+    |
-|---------------|-------|-------|-------|
-| NonPerforming | 10.61 | 9.00  | 8.72  |
-| Performing    | 89.39 | 91.00 | 91.28 |
+<br>
+<img src="http://www.michaeltoth.net/img/Public_Records.jpg", alt="Public Records")>  
+<br> 
 
 <br>
 ####Variables that were not significant:
