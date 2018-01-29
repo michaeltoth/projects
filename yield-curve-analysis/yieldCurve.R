@@ -3,9 +3,19 @@ library(animation)
 library(lubridate)
 library(XML)
 library(mosaic)
+library(Quandl)
+library(tidyr)
+library(stringr)
 
 # Getting yield curve data through 2012
 data(FedYieldCurve)
+
+curve <- Quandl("FED/SVENY")
+curve <- gather(curve, key = 'Tenor', value = 'value', -Date)
+curve$Tenor <- as.numeric(str_sub(curve$Tenor, -2, -1))
+
+ggplot(filter(curve, Date == '2017-11-10')) +
+  geom_line(aes(x = Tenor, y = value))
 
 # Pull 2013 and 2014 data separately from Google Docs (Source U.S. Treasury)
 end_curve <- fetchGoogle("https://docs.google.com/spreadsheets/d/1Yc3Og9g0Ko_SMh6l0EEZcqIQ85godDxgpnkbfK_N-Gk/export?format=csv&id")
